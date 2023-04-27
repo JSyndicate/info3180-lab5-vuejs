@@ -14,10 +14,37 @@
 
 <script setup>
 
+    import { ref, onMounted } from "vue";
+    
+    onMounted(() => {
+        getCsrfToken();
+    });
+
+    let csrf_token = ref("");
+      
+        function getCsrfToken(){
+                
+            fetch('/ap1/v1/csrf-token')
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    csrf_token.value = data.csrf_token;
+                })
+        }
+
+
       function saveMovie(){
 
+        let MovieForm = document.getElementById('MovieForm');
+        let form_data = new FormData(MovieForm);
+        
+
         fetch("/api/v1/movies",{
-            method:'POST'
+            method:'POST',
+            body: form_data,
+            headers: {
+                'X-CSRFToken': csrf_token.value
+            }
         })
             .then(function (response) {
                 return response.json();
